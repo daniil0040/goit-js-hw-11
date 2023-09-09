@@ -49,6 +49,7 @@ async function serviceGetImages(searchQuery,currentPage = 1) {
     const totalHits = response.data.totalHits
     if (objArr.length === 0) {
         selectors.gallery.innerHTML = ""
+        selectors.loadMoreBtn.classList.replace("load-more", "load-more-hidden")
         throw Error( Notiflix.Notify.failure('Sorry, there are no images matching your search query. Please try again.'))
     }
     selectors.loadMoreBtn.classList.replace("load-more-hidden", "load-more")
