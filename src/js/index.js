@@ -1,12 +1,19 @@
 import axios from "axios";
 import Notiflix from 'notiflix';
-// import SimpleLightbox from "simplelightbox";
-// import "simplelightbox/dist/simple-lightbox.min.css";
+import SimpleLightbox from "simplelightbox";
+import "simplelightbox/dist/simple-lightbox.min.css";
 const selectors = {
     form: document.querySelector(".js-search-form"),
     gallery: document.querySelector(".gallery"),
-    loadMoreBtn: document.querySelector(".js-load-more")
+  loadMoreBtn:
+    document.querySelector(".js-load-more")
 }
+const lightbox = new SimpleLightbox('.gallery a',{
+  captionDelay: 250,
+  enableKeyboard: true,
+  showCounter: false,
+})
+
 let page = 1
 let searchQuery = null
 
@@ -16,7 +23,8 @@ selectors.loadMoreBtn.addEventListener("click", hendlerClick)
 async function hendlerClick() {
     page += 1
     const data = await serviceGetImages(searchQuery, page)
-    selectors.gallery.insertAdjacentHTML("beforeend",createMarkup(data))
+  selectors.gallery.insertAdjacentHTML("beforeend", createMarkup(data))
+  lightbox.refresh()
 }
 
 async function hendlerSubmit(evt) {
@@ -24,7 +32,8 @@ async function hendlerSubmit(evt) {
     searchQuery = evt.currentTarget.elements.searchQuery.value
     try {
         const data = await serviceGetImages(searchQuery)
-        selectors.gallery.innerHTML = createMarkup(data)
+      selectors.gallery.innerHTML = createMarkup(data)
+      lightbox.refresh()
     } catch (error) {
         console.log(error);
     } finally {
@@ -67,31 +76,29 @@ async function serviceGetImages(searchQuery,currentPage = 1) {
 
 function createMarkup(arr) {
     return arr.map(({ webformatURL, largeImageURL, tags, likes, views, comments, downloads }) =>`
+    <a href="${largeImageURL}">
     <div class="photo-card">
   <img src="${webformatURL}" alt="${tags}" loading="lazy" class="card-img"/>
-    </a>
   <div class="info">
     <p class="info-item">
-      <b>Likes: ${likes}</b>
+      <b>Likes: </b>
+      ${likes}
     </p>
     <p class="info-item">
-      <b>Views: ${views}</b>
+      <b>Views: </b>
+      ${views}
     </p>
     <p class="info-item">
-      <b>Comments: ${comments}</b>
+      <b>Comments: </b>
+      ${comments}
     </p>
     <p class="info-item">
-      <b>Downloads: ${downloads}</b>
+      <b>Downloads: </b>
+      ${downloads}
     </p>
   </div>
 </div>
+</a>
 `).join("")
 }
-// const lightbox = new SimpleLightbox('.lightbox', {
-//   captionsData: 'alt',
-//   captionDelay: 250,
-//   enableKeyboard: true,
-//   showCounter: false,
-//   scrollZoom: false,
-//   close: false,
-// });
+
