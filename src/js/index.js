@@ -30,7 +30,7 @@ async function hendlerClick() {
 
 async function hendlerSubmit(evt) {
   evt.preventDefault()
-    searchQuery = evt.currentTarget.elements.searchQuery.value
+    searchQuery = evt.currentTarget.elements.searchQuery.value.trim()
     try {
         const data = await serviceGetImages(searchQuery)
       selectors.gallery.innerHTML = createMarkup(data)
@@ -44,7 +44,10 @@ async function hendlerSubmit(evt) {
 }
 
 async function serviceGetImages(searchQuery,currentPage = 1) {
-    const BASE_URL = "https://pixabay.com/api/"
+  const BASE_URL = "https://pixabay.com/api/"
+  if (searchQuery === "") {
+    return Notiflix.Notify.failure("Sorry, it's invalid request. Please try again.")
+  }
     const response = await axios.get(`${BASE_URL}`, {
         params: {
             key: "39333428-d2e3585d2c4254c6d1ca792d8",
@@ -58,9 +61,9 @@ async function serviceGetImages(searchQuery,currentPage = 1) {
     });
     const objArr = response.data.hits;
   const totalHits = response.data.totalHits
-  if (searchQuery === "") {
-     throw Error( Notiflix.Notify.failure("Sorry, it's invalid request. Please try again."))
-  }
+  // if (searchQuery === "") {
+  //    throw Error( Notiflix.Notify.failure("Sorry, it's invalid request. Please try again."))
+  // }
     if (objArr.length === 0) {
         selectors.gallery.innerHTML = ""
         selectors.loadMoreBtn.classList.replace("load-more", "load-more-hidden")
@@ -78,5 +81,3 @@ async function serviceGetImages(searchQuery,currentPage = 1) {
         return {webformatURL, largeImageURL, tags, likes, views, comments, downloads}
     })
 }
-
-
