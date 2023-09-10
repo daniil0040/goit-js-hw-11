@@ -2,6 +2,7 @@ import axios from "axios";
 import Notiflix from 'notiflix';
 import SimpleLightbox from "simplelightbox";
 import "simplelightbox/dist/simple-lightbox.min.css";
+import {createMarkup} from "./markup"
 const selectors = {
     form: document.querySelector(".js-search-form"),
     gallery: document.querySelector(".gallery"),
@@ -28,12 +29,13 @@ async function hendlerClick() {
 }
 
 async function hendlerSubmit(evt) {
-    evt.preventDefault()
+  evt.preventDefault()
     searchQuery = evt.currentTarget.elements.searchQuery.value
     try {
         const data = await serviceGetImages(searchQuery)
       selectors.gallery.innerHTML = createMarkup(data)
       lightbox.refresh()
+      page = 1
     } catch (error) {
         console.log(error);
     } finally {
@@ -55,7 +57,10 @@ async function serviceGetImages(searchQuery,currentPage = 1) {
         }
     });
     const objArr = response.data.hits;
-    const totalHits = response.data.totalHits
+  const totalHits = response.data.totalHits
+  if (searchQuery === "") {
+     throw Error( Notiflix.Notify.failure("Sorry, it's invalid request. Please try again."))
+  }
     if (objArr.length === 0) {
         selectors.gallery.innerHTML = ""
         selectors.loadMoreBtn.classList.replace("load-more", "load-more-hidden")
@@ -74,31 +79,4 @@ async function serviceGetImages(searchQuery,currentPage = 1) {
     })
 }
 
-function createMarkup(arr) {
-    return arr.map(({ webformatURL, largeImageURL, tags, likes, views, comments, downloads }) =>`
-    <a href="${largeImageURL}">
-    <div class="photo-card">
-  <img src="${webformatURL}" alt="${tags}" loading="lazy" class="card-img"/>
-  <div class="info">
-    <p class="info-item">
-      <b>Likes: </b>
-      ${likes}
-    </p>
-    <p class="info-item">
-      <b>Views: </b>
-      ${views}
-    </p>
-    <p class="info-item">
-      <b>Comments: </b>
-      ${comments}
-    </p>
-    <p class="info-item">
-      <b>Downloads: </b>
-      ${downloads}
-    </p>
-  </div>
-</div>
-</a>
-`).join("")
-}
 
